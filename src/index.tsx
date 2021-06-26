@@ -17,9 +17,15 @@ ReactDOM.render(
   </React.StrictMode>,
   document.getElementById('root')
 );
-
-require("./MappingShidPenis");
-
+navigator.permissions.query({name: "geolocation"})
+.then(data => {
+  if (data.state === "denied") {
+    alert("You need to allow the app to access your location");
+  }
+  else {
+    require("./MappingShidPenis");
+  }
+})
 
 // If you want to start measuring performance in your app, pass a function
 // to log results (for example: reportWebVitals(console.log))

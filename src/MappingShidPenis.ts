@@ -12,7 +12,7 @@ import { Coordinates } from "@mapbox/mapbox-sdk/lib/classes/mapi-request";
 import { getLocation } from "./utils";
 
 // @ts-ignore
-Mapbox.workerClass = MapboxWorker; 
+Mapbox.workerClass = MapboxWorker;
 Mapbox.accessToken = 'pk.eyJ1IjoibGFyb25nYmluZ28iLCJhIjoiY2txZGU0ZXM5MGtyeTJ2bnppOHN3b3R2eSJ9.rrO7005dsxNQTb-Cl_8GAQ';
 let directionClient = DirectionClient({
   accessToken: Mapbox.accessToken,
@@ -51,11 +51,11 @@ const pansol: Coordinates = [121.1840, 14.1784];
     color: "#FFF",
     draggable: true,
   })
-  .setLngLat(pansol)
-  .addTo(map);
+    .setLngLat(pansol)
+    .addTo(map);
 
-  map.on("load", () => {
-    directionClient.getDirections({
+  map.on("load", async () => {
+    let res = await directionClient.getDirections({
       profile: "driving",
       geometries: "geojson",
       overview: "full",
@@ -67,43 +67,41 @@ const pansol: Coordinates = [121.1840, 14.1784];
           coordinates: pansol
         }
       ]
-    })
-    .send()
-    .then(res => {
-      console.log(res);
-      
-      // Setup geojson shit to be able to add to the fcking map
-      var geojson = {
-        type: 'Feature',
-        properties: {},
-        geometry: {
-          type: 'LineString',
-          coordinates: res.body.routes[0].geometry.coordinates
-        }
-      };
-      console.log(res.body.routes[0].geometry.coordinates)
-      
-      // Add the geometry to the fcking map so that they can choke on it
-      map.addLayer({
-        id: 'route',
-        type: 'line',
-        source: {
-          type: "geojson",
+    }).send();
 
-          //@ts-ignore
-          data: geojson
-        },
-        layout: {
-          'line-join': 'round',
-          'line-cap': 'round'
-        },
-        paint: {
-          'line-color': '#3887be',
-          'line-width': 5,
-          'line-opacity': 0.75
-        }
-      })
-    });
+    console.log(res);
+
+    // Setup geojson shit to be able to add to the fcking map
+    var geojson = {
+      type: 'Feature',
+      properties: {},
+      geometry: {
+        type: 'LineString',
+        coordinates: res.body.routes[0].geometry.coordinates
+      }
+    };
+    console.log(res.body.routes[0].geometry.coordinates)
+
+    // Add the geometry to the fcking map so that they can choke on it
+    map.addLayer({
+      id: 'route',
+      type: 'line',
+      source: {
+        type: "geojson",
+
+        //@ts-ignore
+        data: geojson
+      },
+      layout: {
+        'line-join': 'round',
+        'line-cap': 'round'
+      },
+      paint: {
+        'line-color': '#3887be',
+        'line-width': 5,
+        'line-opacity': 0.75
+      }
+    })
   });
 })();
 
