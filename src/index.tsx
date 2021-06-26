@@ -2,7 +2,6 @@
  * Written by Renz Christen Yeomer A. Pagulayan
  */
 
-
 import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
@@ -19,8 +18,15 @@ ReactDOM.render(
 );
 navigator.permissions.query({name: "geolocation"})
 .then(data => {
+  console.log(data);
   if (data.state === "denied") {
     alert("You need to allow the app to access your location");
+    setTimeout(_ => window.location.reload(), 5000);
+  }
+  else if (data.state === "prompt") {
+    alert("You need to allow the app to access your location then refresh");
+    require("./MappingShidPenis");
+    setTimeout(_ => window.location.reload(), 5000);
   }
   else {
     require("./MappingShidPenis");
