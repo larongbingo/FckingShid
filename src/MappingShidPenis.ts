@@ -45,7 +45,7 @@ let directionClient = DirectionClient({
     currentPositionMarker.addTo(map);
   }
 
-  var marker = new Mapbox.Marker({
+  new Mapbox.Marker({
     color: "#FFF",
     draggable: true,
   })
