@@ -86,7 +86,7 @@ const pansol: Coordinates = [121.1840, 14.1784];
     console.log(res.body.routes[0].geometry.coordinates)
 
     // Resort marker
-    Locations.forEach(location => {
+    Locations.forEach(async location => {
 
       console.log(location);
       new Mapbox.Marker({
@@ -95,6 +95,50 @@ const pansol: Coordinates = [121.1840, 14.1784];
       })
         .setLngLat(location.coordinates)
         .addTo(map);
+      
+      let resortRes = await directionClient.getDirections({
+        profile: "driving",
+        geometries: "geojson",
+        overview: "full",
+        waypoints: [
+          {
+            coordinates: pansol
+          },
+          {
+            coordinates: location.coordinates
+
+          }
+        ]
+      }).send();
+
+      let resortGeo = {
+        type: 'Feature',
+        properties: {},
+        geometry: {
+          type: 'LineString',
+          coordinates: resortRes.body.routes[0].geometry.coordinates
+        }
+      };
+
+      map.addLayer({
+        id: location.name + '_route',
+        type: 'line',
+        source: {
+          type: "geojson",
+  
+          //@ts-ignore
+          data: resortGeo
+        },
+        layout: {
+          'line-join': 'round',
+          'line-cap': 'round'
+        },
+        paint: {
+          'line-color': '#3887be',
+          'line-width': 5,
+          'line-opacity': 0.75
+        }
+      })
     });
 
     // Add the geometry to the fcking map so that they can choke on it
@@ -116,7 +160,7 @@ const pansol: Coordinates = [121.1840, 14.1784];
         'line-width': 5,
         'line-opacity': 0.75
       }
-    })
+    });
   });
 })();
 
