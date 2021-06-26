@@ -10,6 +10,7 @@ import Mapbox from "mapbox-gl";
 import DirectionClient from "@mapbox/mapbox-sdk/services/directions";
 import { Coordinates } from "@mapbox/mapbox-sdk/lib/classes/mapi-request";
 import { getLocation } from "./utils";
+import { Locations } from "./FckingShidAssFckShid";
 
 // @ts-ignore
 Mapbox.workerClass = MapboxWorker;
@@ -46,6 +47,8 @@ const pansol: Coordinates = [121.1840, 14.1784];
     currentPositionMarker.addTo(map);
   }
 
+
+
   // Pansol Marker
   new Mapbox.Marker({
     color: "#FFF",
@@ -81,6 +84,18 @@ const pansol: Coordinates = [121.1840, 14.1784];
       }
     };
     console.log(res.body.routes[0].geometry.coordinates)
+
+    // Resort marker
+    Locations.forEach(location => {
+
+      console.log(location);
+      new Mapbox.Marker({
+        color: "#080",
+        draggable: false
+      })
+        .setLngLat(location.coordinates)
+        .addTo(map);
+    });
 
     // Add the geometry to the fcking map so that they can choke on it
     map.addLayer({
