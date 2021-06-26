@@ -13,3 +13,8 @@ const reportWebVitals = (onPerfEntry?: ReportHandler) => {
 };
 
 export default reportWebVitals;
+
+/**
+ * Written by Renz Christen Yeomer A. Pagulayan
+ */
+

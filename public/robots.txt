@@ -1,3 +1,4 @@
 # https://www.robotstxt.org/robotstxt.html
+# Written by Renz Christen Yeomer A. Pagulayan
 User-agent: *
 Disallow:
