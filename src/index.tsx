@@ -20,8 +20,8 @@ navigator.permissions.query({name: "geolocation"})
 .then(data => {
   console.log(data);
   if (data.state === "denied") {
-    alert("You need to allow the app to access your location");
-    setTimeout(_ => window.location.reload(), 5000);
+    alert("You need to allow the app to access your location, defaults to Mall of Asia");
+    require("./MappingShidPenis");
   }
   else if (data.state === "prompt") {
     alert("You need to allow the app to access your location then refresh");

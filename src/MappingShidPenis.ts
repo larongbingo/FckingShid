@@ -34,18 +34,22 @@ const pansol: Coordinates = [121.1840, 14.1784];
 
   var currentPositionMarker = new Mapbox.Marker({
     color: "#000",
-    draggable: false,
+    draggable: true,
   });
 
   // get current location via GeoLocation Browser APIs
-  var coords: GeolocationPosition | null = null;
-  if (navigator.geolocation) {
+  var currentCoord: Coordinates | null = null;
+  try {
     var location = await getLocation();
-    coords = location;
-    console.log(location);
-    currentPositionMarker.setLngLat([location.coords.longitude, location.coords.latitude]);
-    currentPositionMarker.addTo(map);
+    currentCoord = [location.coords.longitude, location.coords.latitude];
+    console.log(currentCoord)
   }
+  catch{
+    currentCoord = [120.98423680055872,14.535233738621923];
+  }
+
+  currentPositionMarker.setLngLat(currentCoord);
+  currentPositionMarker.addTo(map);
 
   // Pansol Marker
   new Mapbox.Marker({
@@ -56,16 +60,6 @@ const pansol: Coordinates = [121.1840, 14.1784];
     .addTo(map);
 
   map.on("load", async () => {
-    // Setup geojson shit to be able to add to the fcking map
-    var geojson = {
-      type: 'Feature',
-      properties: {},
-      geometry: {
-        type: 'LineString',
-        coordinates: await GenerateRouteFrom2Coordinates([coords!.coords.longitude, coords!.coords.latitude], pansol)
-      }
-    };
-
     // Resort marker
     Locations.forEach(async location => {
 
@@ -107,16 +101,20 @@ const pansol: Coordinates = [121.1840, 14.1784];
       })
     });
 
-    // Add the geometry to the fcking map so that they can choke on it
-    map.addLayer({
-      id: 'route',
-      type: 'line',
-      source: {
-        type: "geojson",
+    // Setup geojson shit to be able to add to the fcking map
+    var geojson = {
+      type: 'Feature',
+      properties: {},
+      geometry: {
+        type: 'LineString',
+        coordinates: await GenerateRouteFrom2Coordinates(currentCoord!, pansol)
+      }
+    };
 
-        //@ts-ignore
-        data: geojson
-      },
+    var currentRouteLayer = {
+      id: 'currentRouteLayer',
+      type: 'line',
+      source: "currentRouteSource",
       layout: {
         'line-join': 'round',
         'line-cap': 'round'
@@ -126,8 +124,38 @@ const pansol: Coordinates = [121.1840, 14.1784];
         'line-width': 5,
         'line-opacity': 0.75
       }
+    };
+
+    map.addSource("currentRouteSource", {
+      type: "geojson",
+      // @ts-ignore
+      data: geojson
+    });
+
+    // Add the geometry to the fcking map so that they can choke on it
+    //@ts-ignore
+    map.addLayer(currentRouteLayer);
+    
+
+    currentPositionMarker.on("dragend", async (e: any) => {
+      console.log(e.target._lngLat);
+      map.removeLayer('currentRouteLayer');
+      map.removeSource("currentRouteSource");
+      let newRoute = await GenerateRouteFrom2Coordinates([e.target._lngLat.lng, e.target._lngLat.lat] as Coordinates, pansol);
+      geojson.geometry.coordinates = newRoute;
+      //@ts-ignore
+      map.addSource("currentRouteSource", {
+        type: "geojson",
+        // @ts-ignore
+        data: geojson
+      });
+      //@ts-ignore
+      map.addLayer(currentRouteLayer);
+
     });
   });
+
+  
 })();
 
 async function GenerateRouteFrom2Coordinates(startCoord: Coordinates, endCoord: Coordinates) {
